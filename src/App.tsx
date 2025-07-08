@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import LandingPage from './pages/landingPage/LandingPage'
+import SignUp from './pages/SignUp/SignUp'
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <h2 className="bg-red-400 font-display">Hello World!</h2>
+      {/*<LandingPage/> */}
+      <SignUp/>
         
     </>
   )
