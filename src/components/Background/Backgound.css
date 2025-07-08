@@ -1,0 +1,9 @@
+.stars {
+  background-color: black;
+  background-image:
+    radial-gradient(white 1px, transparent 1px),
+    radial-gradient(white 1px, transparent 1px);
+  background-size: 50px 50px, 100px 100px;
+  background-position: 0 0, 25px 25px;
+  animation: moveStars 60s linear infinite;
+}
