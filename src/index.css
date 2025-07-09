@@ -1,4 +1,9 @@
 @import "tailwindcss";
+
 @theme {
-  --font-display: "Inter", "sans-serif"; 
+  --font-display: "Inter", "sans-serif";
+}
+
+.active-page {
+  @apply border border-transparent rounded-xs bg-gray-400 p-1 px-2
 }

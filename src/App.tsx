@@ -3,6 +3,7 @@ import SignUp from './pages/SignUp/SignUp'
 import Login from './pages/Login/Login'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import NotFound from './pages/NotFound/NotFound'
+import Home from './pages/Home/Home'
 function App() {
 let router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ let router = createBrowserRouter([
     element:<SignUp/>
   },
   {
+    path:'/home',
+    element: <Home/>
+  },
+  {
     path : "*",
     element:<NotFound/>
   }
@@ -26,6 +31,7 @@ let router = createBrowserRouter([
   return (
     <>
       <RouterProvider router={router}/>
+    
         
     </>
   )
