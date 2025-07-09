@@ -1,6 +1,7 @@
 import AZ_Logo from "../../assets/logo2.png"
 import { useFormik } from "formik";
 import axios from "axios";
+import { Link } from "react-router-dom";
 interface SignUpFormValues {
     name: string,
     email: string,
@@ -80,7 +81,7 @@ function SignUp() {
 
             </div>
             <div className="mx-auto w-1/4 text-center mt-4 p-5 border border-white bg-white/20 backdrop-blur-md">
-                <p className="text-white font-display">Already Have an Account? <span className="underline cursor-pointer">Login</span></p>
+                <p className="text-white font-display">Already Have an Account? <Link to="/login" className="underline cursor-pointer">Login</Link></p>
             </div>
         </div>
 
