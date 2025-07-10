@@ -1,16 +1,44 @@
 import AZ_Logo from "../../assets/logo2.png"
+import userLogo from "../../assets/user.svg"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+
 function HomeNavBar() {
     let [userIcon, setUserIcon] = useState('');
     let [notificationCount, setNotificationCount] = useState(0);
     let userObjectString = localStorage.getItem('userDetails');
     let userObject = userObjectString ? JSON.parse(userObjectString) : null;
     let username: string = userObject.user.name;
-    
+
+    let [notificationsSpinner, setNotificationsSpinner] = useState(false);
+    let [dropdown, setDropdown] = useState(false);
+    let [notifications, setNotifications] = useState([]);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const handleBellClick = () => {
+        if (!dropdown) getNotifications();
+        setDropdown(!dropdown);
+    };
+
+    async function getNotifications() {
+        setNotificationsSpinner(true);
+        try {
+            let response = await axios.get(`http://147.93.127.229:3008/notifications`, {
+                headers: {
+                    Authorization: `Bearer ${userObject.token}`
+                }
+            });
+            console.log("Notifications obj :", response);
+            setNotifications(response.data.notifications);
+            setNotificationsSpinner(false);
+        }
+        catch (e: any) {
+            console.log(e);
+        }
+    }
     async function getNotificationCount() {
         const token = userObject?.token;
 
@@ -25,8 +53,7 @@ function HomeNavBar() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
-            console.log(response.data);
+            console.log(response.data.count);
             setNotificationCount(response.data.count);
         } catch (error) {
             console.error("Error fetching notification count:", error);
@@ -36,10 +63,20 @@ function HomeNavBar() {
     useEffect(() => {
         setUserIcon(username.charAt(0).toUpperCase());
         getNotificationCount();
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setDropdown(false);
+                setNotificationCount(0);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+
     }, []);
 
     return (
-        <nav className='bg-gradient-to-r from-[#6f02bd] via-[#420484] to-[#6e02a0] p-2 flex items-center justify-between'>
+        <nav className='fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#6f02bd] via-[#420484] to-[#6e02a0] p-2 flex items-center justify-between'>
             <div className="w-1/8">
                 <img className="w-12" src={AZ_Logo} />
             </div>
@@ -69,11 +106,37 @@ function HomeNavBar() {
 
                 <div className="flex items-center justify-between w-1/4 ml-2">
                     <button className="mr-5 text-white font-display text-xl cursor-pointer hover:text-gray-400 transition-all duration-200  ">{userIcon}</button>
-                    <div className="relative mr-5 cursor-pointer  ">
-                        <FontAwesomeIcon icon={faBell} className=" text-white font-display text-xl hover:text-gray-400 transition-all duration-200" />
+                    <div className="relative mr-5 cursor-pointer" ref={dropdownRef}>
+                        <FontAwesomeIcon
+                            icon={faBell}
+                            onClick={handleBellClick}
+                            className="text-white font-display text-xl hover:text-gray-400 transition-all duration-200"
+                        />
                         <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
                             {notificationCount}
                         </span>
+
+                        {dropdown && (
+                            <div className="absolute right-0 mt-5 w-110 bg-white shadow-lg rounded-lg z-50 max-h-80 overflow-auto  p-2">
+                                <button className="my-3 mx-2 py-1 px-4 text-white rounded-xl font-display cursor-pointer bg-gradient-to-r from-[#6f02bd] via-[#420484] to-[#6e02a0]">Clear</button>
+                                {notificationsSpinner ? <div className="text-center"><FontAwesomeIcon icon={faSpinner} spin className="text-violet-500 text-md" /> </div> : (
+                                    notifications.map((notification: any, index: number) => (
+                                        <div key={index} className={`mb-5 flex items-center gap-3 text-left p-2 rounded-md hover:bg-gray-300 shadow-sm  transition-all duration-200 ease-in-out ${notification.seen?"bg-white":"bg-gray-400"}`}>
+                                            <img
+                                                className="w-12 h-12 rounded-full object-cover"
+                                                src={notification.actorId.imgUrl?notification.actorId.imgUrl:userLogo}
+                                                alt="actor"
+                                            />
+                                            <p className="text-sm font-display">
+                                                {notification.actorId.name} is invited you to his unit "
+                                                {notification.unitName}"
+                                            </p>
+                                        </div>
+                                    ))
+                                )}
+
+                            </div>
+                        )}
                     </div>
                     <button className="mr-5  text-white font-display text-xl ">
                         <FontAwesomeIcon icon={faRightFromBracket} />

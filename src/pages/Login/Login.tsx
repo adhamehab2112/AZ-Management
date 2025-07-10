@@ -1,7 +1,7 @@
 import AZ_Logo from "../../assets/logo2.png"
 import { useFormik } from "formik";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link,  useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useState } from "react";
@@ -12,6 +12,7 @@ interface LoginFormValues {
 }
 
 function Login() {
+    let navigate = useNavigate();
     let [spinner , setSpinner] = useState(false);
     let [errorMessage,setErrorMessage] = useState("");
     async function handleLoginSubmit(formValues: LoginFormValues) {
@@ -25,6 +26,7 @@ function Login() {
             if(response.statusText === 'OK')
             {
                 localStorage.setItem('userDetails',JSON.stringify(response.data));
+                navigate("/home");
                 
             }
         }
