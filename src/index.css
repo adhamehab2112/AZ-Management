@@ -1,4 +1,16 @@
 @import "tailwindcss";
+
 @theme {
-  --font-display: "Inter", "sans-serif"; 
+  --font-display: "Inter", "sans-serif";
+}
+
+.active-page {
+  @apply border border-transparent rounded-xs bg-gray-400 p-1 px-2
+}
+
+.unSeenNotification{
+  @apply bg-gray-300 p-2 rounded-lg flex items-center
+}
+.seenNotification{
+  @apply bg-white p-2 rounded-lg flex items-center
 }

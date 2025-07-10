@@ -1,7 +1,10 @@
 import AZ_Logo from "../../assets/logo2.png"
 import { useFormik } from "formik";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link,  useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { useState } from "react";
 interface LoginFormValues {
     email: string,
     password: string,
@@ -9,17 +12,27 @@ interface LoginFormValues {
 }
 
 function Login() {
+    let navigate = useNavigate();
+    let [spinner , setSpinner] = useState(false);
+    let [errorMessage,setErrorMessage] = useState("");
     async function handleLoginSubmit(formValues: LoginFormValues) {
+        setSpinner(true);
         try {
             let response = await axios.post(`http://147.93.127.229:3008/account/login`, {
                 email: formValues.email,
                 password: formValues.password,
             });
-            console.log(response);
+            console.log(response)
+            if(response.statusText === 'OK')
+            {
+                localStorage.setItem('userDetails',JSON.stringify(response.data));
+                navigate("/home");
+                
+            }
         }
         catch (e: any) {
-            console.log(e);
-
+            setSpinner(false);
+            setErrorMessage(e.response.data.error);
         }
     }
 
@@ -55,7 +68,8 @@ function Login() {
                             value={formik.values.password}
                             type="password" id="password" className=" w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 " required />
                     </div>
-                    <button type="submit" className="font-display text-white bg-[#9c09c5] mt-3 w-full rounded-xs py-1 text-lg  cursor-pointer hover:bg-[#c17dd4] transition-all duration-200">Login</button>
+                    {errorMessage&&<p className="text-xs mt-2 font-display text-red-600">This Email Or Password may be wrong</p>}
+                    <button type="submit" className="font-display text-white bg-[#9c09c5] mt-3 w-full rounded-xs py-1 text-lg  cursor-pointer hover:bg-[#c17dd4] transition-all duration-200">Login {spinner&&<FontAwesomeIcon icon={faSpinner} spin className="text-white text-md" />} </button>
                 </form>
 
             </div>
