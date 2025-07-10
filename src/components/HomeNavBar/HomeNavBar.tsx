@@ -4,8 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faRightFromBracket, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 function HomeNavBar() {
+
+    let location = useLocation();
+    
+
     let [userIcon, setUserIcon] = useState("");
     let [notificationCount, setNotificationCount] = useState(0);
     let [notificationsSpinner, setNotificationsSpinner] = useState(false);
@@ -81,6 +86,7 @@ function HomeNavBar() {
             console.error("Error fetching notification count:", error);
         }
     }
+    
 
     useEffect(() => {
         setUserIcon(username.charAt(0).toUpperCase());
@@ -88,7 +94,7 @@ function HomeNavBar() {
         const interval = setInterval(() => {
             getNotificationCount();
             console.log("notification count checked");
-        }, 3000); 
+        }, 3000);
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node;
             if (dropdownRef.current && !dropdownRef.current.contains(target)) {
@@ -115,17 +121,17 @@ function HomeNavBar() {
         setFilteredUsers(filtered);
     }, [usersSearchValue]);
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#6f02bd] via-[#420484] to-[#6e02a0] p-2 flex items-center justify-between">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#29015f] via-[#4204a0] to-[#6e02a0] p-2 flex items-center justify-between">
             <div className="w-1/8">
                 <img className="w-12" src={AZ_Logo} />
             </div>
 
             <div className="w-1/4">
                 <ul className="flex items-center justify-between">
-                    <li><button className="mx-4 text-white font-display cursor-pointer">Home</button></li>
-                    <li><button className="mx-4 text-white font-display cursor-pointer">Files</button></li>
-                    <li><button className="mx-4 text-white font-display cursor-pointer">Notes</button></li>
-                    <li><button className="mx-4 text-white font-display cursor-pointer">Tasks</button></li>
+                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/home" ? "active-page" :""}`}>Home</button></li>
+                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/files" ? "active-page" :""}`}>Files</button></li>
+                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/notes" ? "active-page" :""}`}>Notes</button></li>
+                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/tasks" ? "active-page" :""}`}>Tasks</button></li>
                 </ul>
             </div>
 
@@ -169,9 +175,13 @@ function HomeNavBar() {
                                                 </div>
                                             </div>
                                         ))
+                                    ) : usersSearchValue.trim().length > 0 ? (
+                                        <div className="text-center">
+                                            <p className="font-display italic text-red-500">No matching users</p>
+                                        </div>
                                     ) : (
                                         <div className="text-center">
-                                            <p className="font-display italic text-gray-400 ">Type username to search</p>
+                                            <p className="font-display italic text-gray-400">Type username to search</p>
                                         </div>
                                     )}
                                 </div>
