@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faRightFromBracket, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function HomeNavBar() {
 
@@ -93,7 +93,6 @@ function HomeNavBar() {
         getNotificationCount();
         const interval = setInterval(() => {
             getNotificationCount();
-            console.log("notification count checked");
         }, 3000);
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node;
@@ -128,10 +127,10 @@ function HomeNavBar() {
 
             <div className="w-1/4">
                 <ul className="flex items-center justify-between">
-                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/home" ? "active-page" :""}`}>Home</button></li>
-                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/files" ? "active-page" :""}`}>Files</button></li>
-                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/notes" ? "active-page" :""}`}>Notes</button></li>
-                    <li><button className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/tasks" ? "active-page" :""}`}>Tasks</button></li>
+                    <li><Link to ="/home" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/home" ? "active-page" :""}`}>Home</Link></li>
+                    <li><Link to="/files" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/files" ? "active-page" :""}`}>Files</Link></li>
+                    <li><Link to="/notes" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/notes" ? "active-page" :""}`}>Notes</Link></li>
+                    <li><Link to="/tasks" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/tasks" ? "active-page" :""}`}>Tasks</Link></li>
                 </ul>
             </div>
 
@@ -191,9 +190,9 @@ function HomeNavBar() {
                 </div>
 
                 <div className="flex items-center justify-between w-1/4 ml-2">
-                    <button className="mr-5 text-white font-display text-xl cursor-pointer hover:text-gray-400 transition-all duration-200">
+                    <Link to="/profile" className="mr-5 text-white font-display text-xl cursor-pointer hover:text-gray-400 transition-all duration-200">
                         {userIcon}
-                    </button>
+                    </Link>
 
                     <div className="relative mr-5 cursor-pointer" ref={dropdownRef} onClick={handleBellClick}>
                         <FontAwesomeIcon icon={faBell} className="text-white font-display text-xl hover:text-gray-400 transition-all duration-200" />
