@@ -8,6 +8,7 @@ import Home from './pages/Home/Home'
 import Profile from './pages/Profile/Profile'
 import Notes from './pages/Notes/Notes'
 import Tasks from './pages/Tasks/Tasks'
+import UserProfile from './pages/UserProfile/UserProfile'
 function App() {
 let router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ let router = createBrowserRouter([
   {
     path:'/tasks',
     element: <Tasks/>
+  },
+  {
+    path:'/user-profile/:username',
+    element: <UserProfile/>
   },
   {
     path : "*",
