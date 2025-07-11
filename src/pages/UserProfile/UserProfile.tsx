@@ -1,5 +1,4 @@
 import HomeNavBar from "../../components/HomeNavBar/HomeNavBar";
-import ProfileMainSection from "../../components/ProfileMainSection/ProfileMainSection";
 import SideBar from "../../components/SideBar/SideBar";
 import UserProfileMainSection from "../../components/UserProfileMainSection/UserProfileMainSection";
 function UserProfile() {
