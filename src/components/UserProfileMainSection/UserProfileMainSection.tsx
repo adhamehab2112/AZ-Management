@@ -55,7 +55,7 @@ function UserProfileMainSection() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center border-2 p-3 rounded-xl border-gray-300 mt-5 w-1/3">
                         <div className="flex items-center ml-4">
-                            <FontAwesomeIcon icon={faUsers} className="text-blue-700 text-lg mt-1 border-2 border-blue-200 px-3 py-4 rounded-xl bg-blue-200" />
+                            <FontAwesomeIcon icon={faUsers} className="text-blue-700 text-lg mt-1 border-2 border-blue-200 px-4 py-4 rounded-xl bg-blue-200" />
                             <div className="">
                                 <p className='text-xl mx-3 font-display font-semibold'>154</p>
                                 <p className='text-sm ml-3 font-display text-gray-600'>Connections</p>
@@ -64,7 +64,7 @@ function UserProfileMainSection() {
                     </div>
                     <div className="flex items-center border-2 p-3 rounded-xl border-gray-300 mt-5 w-1/3 ml-3">
                         <div className="flex items-center ml-4">
-                            <FontAwesomeIcon icon={faCheck} className="text-green-700 text-lg font-bold mt-1 border-2 border-green-200 px-3 py-4 rounded-xl bg-green-200" />
+                            <FontAwesomeIcon icon={faCheck} className="text-green-700 text-lg font-bold mt-1 border-2 border-green-200 px-4 py-4 rounded-xl bg-green-200" />
                             <div className="">
                                 <p className='text-xl mx-3 font-display font-semibold'>42</p>
                                 <p className='text-sm ml-3 font-display text-gray-600'>Projects</p>
@@ -73,7 +73,7 @@ function UserProfileMainSection() {
                     </div>
                     <div className="flex items-center border-2 p-3 rounded-xl border-gray-300 mt-5 w-1/3 ml-3">
                         <div className="flex items-center ml-4">
-                            <FontAwesomeIcon icon={faUpload} className="text-violet-700 text-lg font-bold mt-1 border-2 border-violet-200 px-3 py-4 rounded-xl bg-violet-200" />
+                            <FontAwesomeIcon icon={faUpload} className="text-violet-700 text-lg font-bold mt-1 border-2 border-violet-200 px-4 py-4 rounded-xl bg-violet-200" />
                             <div className="">
                                 <p className='text-xl mx-3 font-display font-semibold'>24</p>
                                 <p className='text-sm ml-3 font-display text-gray-600'>Uploads</p>

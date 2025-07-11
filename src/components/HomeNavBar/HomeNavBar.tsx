@@ -29,6 +29,13 @@ function HomeNavBar() {
     const userObject = userObjectString ? JSON.parse(userObjectString) : null;
     const username: string = userObject?.user?.name || "";
 
+   function handleLogout()
+   {
+    localStorage.removeItem('userDetails');
+    navigate("/");
+
+   }
+   
     function handleBellClick() {
         if (!dropdown) getNotifications();
         setDropdown(!dropdown);
@@ -229,8 +236,8 @@ function HomeNavBar() {
                         )}
                     </div>
 
-                    <button className="mr-5 text-white font-display text-xl">
-                        <FontAwesomeIcon icon={faRightFromBracket} />
+                    <button className="mr-5 text-white font-display text-xl cursor-pointer" onClick={()=>{handleLogout()}}>
+                        <FontAwesomeIcon icon={faRightFromBracket} className="hover:text-gray-400" />
                     </button>
                 </div>
             </div>
