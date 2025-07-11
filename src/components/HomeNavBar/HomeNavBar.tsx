@@ -4,12 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faRightFromBracket, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function HomeNavBar() {
 
     let location = useLocation();
-    
+    let navigate = useNavigate();
 
     let [userIcon, setUserIcon] = useState("");
     let [notificationCount, setNotificationCount] = useState(0);
@@ -29,6 +29,13 @@ function HomeNavBar() {
     const userObject = userObjectString ? JSON.parse(userObjectString) : null;
     const username: string = userObject?.user?.name || "";
 
+   function handleLogout()
+   {
+    localStorage.removeItem('userDetails');
+    navigate("/");
+
+   }
+   
     function handleBellClick() {
         if (!dropdown) getNotifications();
         setDropdown(!dropdown);
@@ -147,6 +154,7 @@ function HomeNavBar() {
                             <input
                                 type="search"
                                 id="default-search"
+                                autoComplete="off"
                                 value={usersSearchValue}
                                 onChange={(e) => {
                                     setUsersSearchValue(e.target.value);
@@ -162,7 +170,7 @@ function HomeNavBar() {
                                         </div>
                                     ) : filteredUsers.length > 0 ? (
                                         filteredUsers.map((user: any) => (
-                                            <div key={user._id} className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2">
+                                            <div key={user._id} className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" onClick={()=>{navigate(`/user-profile/${user.username}`)}}>
                                                 <img
                                                     src={user.imgUrl ? user.imgUrl : userLogo}
                                                     alt="user"
@@ -228,8 +236,8 @@ function HomeNavBar() {
                         )}
                     </div>
 
-                    <button className="mr-5 text-white font-display text-xl">
-                        <FontAwesomeIcon icon={faRightFromBracket} />
+                    <button className="mr-5 text-white font-display text-xl cursor-pointer" onClick={()=>{handleLogout()}}>
+                        <FontAwesomeIcon icon={faRightFromBracket} className="hover:text-gray-400" />
                     </button>
                 </div>
             </div>
