@@ -4,6 +4,7 @@ import Login from './pages/Login/Login'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import NotFound from './pages/NotFound/NotFound'
 import Home from './pages/Home/Home'
+import Profile from './pages/Profile/Profile'
 function App() {
 let router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ let router = createBrowserRouter([
   {
     path:'/home',
     element: <Home/>
+  },
+  {
+    path:'/profile',
+    element: <Profile/>
   },
   {
     path : "*",
