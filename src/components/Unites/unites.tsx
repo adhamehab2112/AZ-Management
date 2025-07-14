@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Skeleton from '@mui/material/Skeleton';
 import NewUnitModal from "../../modals/NewUnitModal";
+
 function Units() {
     const location = useLocation();
     let navigate = useNavigate();
@@ -17,30 +18,29 @@ function Units() {
     let [loadingSkeleton, setLoadingSkeleton] = useState(true);
     const [starredUnites, setStarredUnites] = useState<any[]>([]);
     let [showModal, setShowModal] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const unitsPerPage = 4;
 
     async function starUnit(unitId: string) {
-
         setStarredUnites([...starredUnites, unitId]);
         let token = userObject?.token;
         try {
-
-            const response = await axios.put(`http://147.93.127.229:3008/units/star/${unitId}`, {}, {
+            await axios.put(`http://147.93.127.229:3008/units/star/${unitId}`, {}, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
         }
         catch (e: any) {
             setStarredUnites(starredUnites.filter(id => id !== unitId));
-            console.log(e);
         }
     }
+
     async function unstartUnit(unitId: string) {
         setStarredUnites(starredUnites.filter(id => id !== unitId));
         let token = userObject?.token;
         try {
-            const response = await axios.put(`http://147.93.127.229:3008/units/unstar/${unitId}`, {}, {
+            await axios.put(`http://147.93.127.229:3008/units/unstar/${unitId}`, {}, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -58,20 +58,30 @@ function Units() {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
-
             });
             setUnites(response.data.units);
             setStarredUnites(response.data.starred);
             setLoadingSkeleton(false);
         }
         catch (e: any) {
-            console.log(e);
         }
     }
+
     useEffect(() => {
         getAllUnites();
-
     }, []);
+
+    useEffect(() => {
+        if (!showModal) {
+            getAllUnites();
+            setCurrentPage(1);
+        }
+    }, [showModal]);
+
+    const indexOfLastUnit = currentPage * unitsPerPage;
+    const indexOfFirstUnit = indexOfLastUnit - unitsPerPage;
+    const currentUnits = units.slice(indexOfFirstUnit, indexOfLastUnit);
+    const totalPages = Math.ceil(units.length / unitsPerPage);
 
     return (
         <>
@@ -102,66 +112,58 @@ function Units() {
                             <FontAwesomeIcon icon={faUser} className={`${!(location.pathname === 'invitations') ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
                             <p className={`${!(location.pathname === '/invitations') ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Invitations</p>
                         </Link>
-
                     </div>
                 </div>
                 <div className="w-4/5">
-                    {loadingSkeleton ? (<div className="mx-10 w-3/4 flex flex-wrap items-center justify-between">
-                        <div className="flex flex-wrap mt-10 w-1/4 ">
-                            <Skeleton variant="rectangular" width={230} height={118} />
-                            <Skeleton width="90%" />
-                            <Skeleton width="80%" />
-                            <Skeleton width="70%" />
-                        </div>
-                        <div className="flex flex-wrap mt-10 w-1/4">
-                            <Skeleton variant="rectangular" width={230} height={118} />
-                            <Skeleton width="90%" />
-                            <Skeleton width="80%" />
-                            <Skeleton width="70%" />
-                        </div>
-                        <div className="flex flex-wrap mt-10 w-1/4 mr-10 ">
-                            <Skeleton variant="rectangular" width={230} height={118} />
-                            <Skeleton width="90%" />
-                            <Skeleton width="80%" />
-                            <Skeleton width="70%" />
-                        </div>
-                        <div className="flex flex-wrap mt-10 w-1/4 mr-10 ">
-                            <Skeleton variant="rectangular" width={230} height={118} />
-                            <Skeleton width="90%" />
-                            <Skeleton width="80%" />
-                            <Skeleton width="70%" />
-                        </div>
-                        <div className="flex flex-wrap mt-10 w-1/4 mr-10 ">
-                            <Skeleton variant="rectangular" width={230} height={118} />
-                            <Skeleton width="90%" />
-                            <Skeleton width="80%" />
-                            <Skeleton width="70%" />
-                        </div>
-                        <div className="flex flex-wrap mt-10 w-1/4 mr-10 ">
-                            <Skeleton variant="rectangular" width={230} height={118} />
-                            <Skeleton width="90%" />
-                            <Skeleton width="80%" />
-                            <Skeleton width="70%" />
-                        </div>
+                    {loadingSkeleton ? (<div className="mx-5 w-3/4 flex flex-wrap items-center justify-between">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="flex flex-wrap mt-5 w-1/4">
+                                <Skeleton variant="rectangular" width={230} height={118} />
+                                <Skeleton width="90%" />
+                                <Skeleton width="80%" />
+                                <Skeleton width="70%" />
+                            </div>
+                        ))}
                     </div>) : (
-                        <div className="grid grid-cols-2 gap-6 px-10 py-8">
-                            {units.map((unit: any, index: number) => (
-                                <div key={index} className="transition-all duration-300 transform hover:scale-105">
-                                    <div className="rounded overflow-hidden shadow-md bg-white">
-                                        <Link to="/"><img className="w-full h-40 object-cover" src={unit.coverUrl ? unit.coverUrl : defaultUnit} alt="Unit Preview" /></Link>
-                                        <div className="p-3 flex items-center justify-between z-10">
-                                            <h2 className="font-display font-semibold">{unit.name}</h2>
-                                            {starredUnites.includes(unit._id)
-                                                ? <FontAwesomeIcon icon={faStar} className="text-yellow-400 cursor-pointer" onClick={() => { unstartUnit(unit._id) }} />
-                                                : <FontAwesomeIcon icon={faStar} className="text-gray-400 cursor-pointer" onClick={() => { starUnit(unit._id) }} />}
+                        <div className="px-10 py-4">
+                            <div className="grid grid-cols-2 gap-6">
+                                {currentUnits.map((unit: any, index: number) => (
+                                    <div key={index} className="transition-all duration-300 transform hover:scale-105">
+                                        <div className="rounded overflow-hidden shadow-md bg-white">
+                                            <Link to="/"><img className="w-full h-40 object-cover" src={unit.coverUrl ? unit.coverUrl : defaultUnit} alt="Unit Preview" /></Link>
+                                            <div className="p-3 flex items-center justify-between z-10">
+                                                <h2 className="font-display font-semibold">{unit.name}</h2>
+                                                {starredUnites.includes(unit._id)
+                                                    ? <FontAwesomeIcon icon={faStar} className="text-yellow-400 cursor-pointer" onClick={() => { unstartUnit(unit._id) }} />
+                                                    : <FontAwesomeIcon icon={faStar} className="text-gray-400 cursor-pointer" onClick={() => { starUnit(unit._id) }} />}
+                                            </div>
+                                            <p className="px-3 font-display text-sm text-gray-600">{unit.description}</p>
+                                            <p className="px-3 mt-2 mb-3 text-sm text-gray-500 font-display">
+                                                Created by: <span className="font-medium">{unit.owner.name}</span>
+                                            </p>
                                         </div>
-                                        <p className="px-3 font-display text-sm text-gray-600">{unit.description}</p>
-                                        <p className="px-3 mt-2 mb-3 text-sm text-gray-500 font-display">
-                                            Created by: <span className="font-medium">{unit.owner.name}</span>
-                                        </p>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
+                            <div className="flex justify-center items-center mt-4 space-x-4">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 rounded-xl font-bold font-display text-white cursor-pointer border-[#29015f] bg-[#29015f]"
+                                >
+                                    Previous
+                                </button>
+                                <span className="text-sm font-display text-gray-700">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 rounded-xl font-bold font-display text-white cursor-pointer border-[#29015f] bg-[#29015f]" 
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
