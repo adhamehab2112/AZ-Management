@@ -72,13 +72,13 @@ function ProfileMainSection() {
                                 className="block w-full p-3 bg-white/30 text-2xl text-white font-display font-semibold border border-gray-300 rounded-lg"
                             />
                             <button
-                                className="ml-3 cursor-pointer bg-green-400 p-1 rounded-sm"
+                                className="ml-3 cursor-pointer bg-green-400 p-1 px-1 rounded-sm"
                                 onClick={() => editUsername(username)}
                             >
                                 <FontAwesomeIcon icon={faCheck} className="text-white text-2xl font-bold" />
                             </button>
                             <button
-                                className="ml-3 cursor-pointer bg-red-400 p-1 rounded-sm"
+                                className="ml-3 px-2 cursor-pointer bg-red-400 p-1 rounded-sm"
                                 onClick={() => setEditUsername(false)}
                             >
                                 <FontAwesomeIcon icon={faXmark} className="text-white text-2xl font-bold" />
