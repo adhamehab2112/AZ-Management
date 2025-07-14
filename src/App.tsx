@@ -10,6 +10,9 @@ import Notes from './pages/Notes/Notes'
 import Tasks from './pages/Tasks/Tasks'
 import UserProfile from './pages/UserProfile/UserProfile'
 import AuthUser from './router/AuthUser'
+import Units from './components/Unites/unites'
+import Starred from './components/Starred/Starred'
+import Invitations from './components/Invitations/Invitations'
 function App() {
   let router = createBrowserRouter([
     {
@@ -34,7 +37,21 @@ function App() {
     },
     {
       path: '/files',
-      element: <AuthUser><Files /></AuthUser>
+      element: <AuthUser><Files /></AuthUser>,
+      children : [
+        {
+          index : true , 
+          element : <AuthUser> <Units/> </AuthUser>
+        },
+        {
+          path : "starred" , 
+          element : <AuthUser> <Starred/> </AuthUser>
+        },
+        {
+          path : "invitations" , 
+          element : <AuthUser> <Invitations/> </AuthUser>
+        }
+      ]
     },
     {
       path: '/notes',
