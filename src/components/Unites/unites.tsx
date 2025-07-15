@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom"
 import userLogo from "../../assets/user.svg";
 import defaultUnit from "../../assets/default-unit.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faNoteSticky, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faNoteSticky, faStar  } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -130,7 +130,7 @@ function Units() {
                                 {currentUnits.map((unit: any, index: number) => (
                                     <div key={index} className="transition-all duration-300 transform hover:scale-105">
                                         <div className="rounded overflow-hidden shadow-md bg-white">
-                                            <Link to="/"><img className="w-full h-40 object-cover" src={unit.coverUrl ? unit.coverUrl : defaultUnit} alt="Unit Preview" /></Link>
+                                            <Link to={unit._id}><img className="w-full h-40 object-cover" src={unit.coverUrl ? unit.coverUrl : defaultUnit} alt="Unit Preview" /></Link>
                                             <div className="p-3 flex items-center justify-between z-10">
                                                 <h2 className="font-display font-semibold">{unit.name}</h2>
                                                 {starredUnites.includes(unit._id)
