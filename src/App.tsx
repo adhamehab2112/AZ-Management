@@ -13,6 +13,7 @@ import AuthUser from './router/AuthUser'
 import Units from './components/Unites/unites'
 import Starred from './components/Starred/Starred'
 import Invitations from './components/Invitations/Invitations'
+import Unit from './components/Unit/Unit'
 function App() {
   let router = createBrowserRouter([
     {
@@ -50,6 +51,10 @@ function App() {
         {
           path : "invitations" , 
           element : <AuthUser> <Invitations/> </AuthUser>
+        },
+        {
+          path : ":unitId",
+          element : <AuthUser> <Unit/> </AuthUser>
         }
       ]
     },
