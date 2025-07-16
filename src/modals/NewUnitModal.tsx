@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 interface ModalProps {
-    onClose: () => void
+    onClose: () => void ,
+    
 }
 
 
@@ -18,7 +19,7 @@ interface FormValues {
 
 
 
-function NewUnitModal({ onClose }: ModalProps) {
+function NewUnitModal({ onClose  }: ModalProps) {
     let [imgContent, setImgContent] = useState<string | null>(null);
     let [spinner, setSpinner] = useState(false);
     const userObjectString = localStorage.getItem("userDetails");
