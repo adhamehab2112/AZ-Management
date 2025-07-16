@@ -6,15 +6,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Skeleton from '@mui/material/Skeleton';
+import NewNodeModal from "../../modals/NewNodeModal";
 
 const colorMap: Record<string, string> = {
-  yellow: "bg-yellow-200",
-  green: "bg-green-200",
-  pink: "bg-pink-200",
-  purple: "bg-purple-200",
-  blue: "bg-blue-200",
-  gray: "bg-gray-200",
-  dark: "bg-gray-600"
+    yellow: "bg-yellow-200",
+    green: "bg-green-200",
+    pink: "bg-pink-200",
+    purple: "bg-purple-200",
+    blue: "bg-blue-200",
+    gray: "bg-gray-200",
+    dark: "bg-gray-600"
 };
 
 function Unit() {
@@ -23,15 +24,15 @@ function Unit() {
     const userObjectString = localStorage.getItem("userDetails");
     const userObject = userObjectString ? JSON.parse(userObjectString) : null;
     let [loadingSkeleton, setLoadingSkeleton] = useState(true);
-    let [newNodeModal, setnewNodeModal] = useState(false);
-    let { unitId } = useParams();
+    let [newNodeModal, setNewNodeModal] = useState(false);
+    let { unitId } = useParams<string>();
     let [unit, setUnit] = useState<any>(null);
     let [nodes, setNodes] = useState<any>([]);
     let [nodeResources, setNodeResources] = useState<any>([]);
     let [expandedNodes, setExpandedNodes] = useState<string[]>([]);
+    let [isLoading , setIsLoading] = useState(false);
 
 
-    console.log(expandedNodes);
     async function handleExpandButton(nodeId: string) {
         let token = userObject?.token;
         setExpandedNodes(prev =>
@@ -66,6 +67,28 @@ function Unit() {
             console.log(e);
         }
 
+    }
+
+    async function deleteNode(nodeId: string) {
+        let token = userObject?.token;
+        console.log(nodeId);
+        setIsLoading(true);
+        try {
+            let response = await axios.delete(`http://147.93.127.229:3008/nodes/${nodeId}`, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            );
+            console.log(response.data);
+            setIsLoading(false);
+            navigate(0);
+        }
+        catch (e: any) {
+            console.log(e);
+            setIsLoading(false);
+        }
     }
 
 
@@ -138,7 +161,7 @@ function Unit() {
                                                 <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-[#29015f] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 cursor-pointer">Search</button>
                                             </div>
                                         </form>
-                                        <div className="flex items-center  cursor-pointer bg-[#29015f]   text-center  rounded-sm pl-4 py-2 px-2 shadow-2xl transition-all duration-300 transform hover:scale-105" >
+                                        <div className="flex items-center  cursor-pointer bg-[#29015f]   text-center  rounded-sm pl-4 py-2 px-2 shadow-2xl transition-all duration-300 transform hover:scale-105" onClick={() => { setNewNodeModal(true) }}>
                                             <button className="font-display text-white text-lg font-bold cursor-pointer w-full mr-2"  >+</button>
                                         </div>
                                     </div>
@@ -148,16 +171,16 @@ function Unit() {
                                                 <p >{node.name}</p>
                                                 <ul className="flex items-center justify-between">
                                                     <li><FontAwesomeIcon icon={faPlus} className="cursor-pointer" /></li>
-                                                    <li><FontAwesomeIcon icon={faTrash} className="ml-3 cursor-pointer " /></li>
+                                                    <li><button disabled={isLoading} onClick={() => { deleteNode(node._id) }} ><FontAwesomeIcon icon={faTrash} className={`ml-3 cursor-pointer ${isLoading?"text-gray-400":""} `} /></button></li>
                                                     <li><FontAwesomeIcon icon={faPen} className="ml-3 cursor-pointer " /></li>
-                                                    {expandedNodes.includes(node._id) ? (<li><button onClick={() => { handleCollapseButton(node._id) }}><FontAwesomeIcon icon={faArrowUp} className="ml-3 cursor-pointer " /></button></li>) : (<li><button onClick={() => { handleExpandButton(node._id) }}><FontAwesomeIcon icon={faArrowDown} className="ml-3 cursor-pointer " /></button></li>)}
+                                                    {expandedNodes.includes(node._id) ? (<li><button onClick={() => { handleCollapseButton(node._id) }}><FontAwesomeIcon icon={faArrowUp} className="ml-3 cursor-pointer " /></button></li>) : (<li><button onClick={() => { handleExpandButton(node._id) }}><FontAwesomeIcon icon={faArrowDown} className={`ml-3 cursor-pointer  `} /></button></li>)}
                                                 </ul>
                                             </div>
                                             {node.resources.length === 0 ? (<div className="mx-10 my-2 text-center rounded-xl bg-white p-1 font-display">Wow such empty , press + to add resources</div>) : (
                                                 expandedNodes.includes(node._id) ? (
                                                     <div className={`mx-10 my-2 text-center rounded-xl bg-white p-2 font-display  `}>
-                                                        {nodeResources.map((resource: any) => (
-                                                            <div className={`flex items-center justify-between p-3 border border-gray-200 ${colorMap[node.color] || 'bg-gray-100'} mb-1`}>
+                                                        {nodeResources.map((resource: any, i: number) => (
+                                                            <div key={i} className={`flex items-center justify-between p-3 border border-gray-200 ${colorMap[node.color] || 'bg-gray-100'} mb-1`}>
                                                                 <div className="flex items-center w-1/2">
                                                                     <FontAwesomeIcon icon={resource.type === 'LINK' ? faLink : (resource.type === 'IMAGE' ? faImage : faStickyNote)} className="text-sm mr-2" />
                                                                     <p className="text-sm font-display">{resource.name}</p>
@@ -170,7 +193,7 @@ function Unit() {
                                                                     <ul className="flex items-center">
                                                                         <li><button><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
                                                                         <li><button><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
-                                                                        <li><button><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
+                                                                        <li><button><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" onClick={() => { console.log("remove node") }} /></button></li>
                                                                     </ul>
                                                                 </div>
                                                             </div>
@@ -192,7 +215,7 @@ function Unit() {
             </div>
 
 
-
+            {newNodeModal && <NewNodeModal onClose={() => setNewNodeModal(false)} unitId={unitId} />}
         </>
     )
 }
