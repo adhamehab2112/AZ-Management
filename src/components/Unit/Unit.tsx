@@ -186,7 +186,7 @@ function Unit() {
                                                                     <p className="text-sm font-display">{resource.name}</p>
                                                                 </div>
                                                                 <div className="flex items-center w-1/3">
-                                                                    <img className="w-8" src={resource.createdBy.imgUrl ? resource.createdBy.imgUrl : userLogo} />
+                                                                    <img className="w-8 h-8 rounded-full mr-2" src={resource.createdBy.imgUrl ? resource.createdBy.imgUrl : userLogo} />
                                                                     <p className="font-display text-sm">{resource.createdBy.name === userObject.user.name ? "Me" : resource.createdBy.name}</p>
                                                                 </div>
                                                                 <div className="flex items-center ">
