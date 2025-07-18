@@ -6,11 +6,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Skeleton from '@mui/material/Skeleton';
 import NewNodeModal from "../../modals/NewNodeModal";
 import NewResourceModal from "../../modals/NewResourceModal";
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const colorMap: Record<string, string> = {
     yellow: "bg-yellow-200",
@@ -21,6 +23,135 @@ const colorMap: Record<string, string> = {
     gray: "bg-gray-200",
     dark: "bg-gray-600"
 };
+
+const ItemType = 'NODE';
+
+interface DragItem {
+    id: string;
+    index: number;
+    type: string;
+}
+
+interface DraggableNodeProps {
+    node: any;
+    index: number;
+    moveNode: (dragIndex: number, hoverIndex: number) => void;
+    expandedNodes: string[];
+    resourceLoading: string[];
+    nodeResources: Record<string, any[]>;
+    handleExpandButton: (nodeId: string) => void;
+    handleCollapseButton: (nodeId: string) => void;
+    handleNewRecourse: (nodeId: string) => void;
+    deleteNode: (nodeId: string) => void;
+    deleteResource: (resourceId: string) => void;
+    isLoading: boolean;
+    userObject: any;
+}
+
+function DraggableNode({
+    node, index, moveNode, expandedNodes, resourceLoading, nodeResources,
+    handleExpandButton, handleCollapseButton, handleNewRecourse, deleteNode,
+    deleteResource, isLoading, userObject
+}: DraggableNodeProps) {
+    const [{ isDragging }, drag] = useDrag({
+        type: ItemType,
+        item: { id: node._id, index },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    });
+
+    const [, drop] = useDrop({
+        accept: ItemType,
+        hover: (draggedItem: DragItem) => {
+            if (draggedItem.index !== index) {
+                moveNode(draggedItem.index, index);
+                draggedItem.index = index;
+            }
+        },
+    });
+    const setRef = useCallback((node: HTMLDivElement | null) => {
+        if (node) drag(drop(node));
+    }, [drag, drop]);
+    return (
+        <div
+           ref={setRef}
+            className={`mt-4 rounded-lg p-2 ${colorMap[node.color] || 'bg-gray-100'} ${isDragging ? 'opacity-50' : ''
+                } cursor-move transition-all duration-200 hover:shadow-lg`}
+        >
+            <div className="p-4 flex items-center justify-between border rounded-2xl border-gray-100">
+                <div className="flex items-center">
+                    <span className="mr-2 text-gray-400">⋮⋮</span>
+                    <p>{node.name}</p>
+                </div>
+                <ul className="flex items-center justify-between">
+                    <li>
+                        <button onClick={() => handleNewRecourse(node._id)}>
+                            <FontAwesomeIcon icon={faPlus} className="cursor-pointer" />
+                        </button>
+                    </li>
+                    <li>
+                        <button disabled={isLoading} onClick={() => deleteNode(node._id)}>
+                            <FontAwesomeIcon icon={faTrash} className={`ml-3 cursor-pointer ${isLoading ? "text-gray-400" : ""}`} />
+                        </button>
+                    </li>
+                    <li><FontAwesomeIcon icon={faPen} className="ml-3 cursor-pointer" /></li>
+                    {expandedNodes.includes(node._id) ? (
+                        <li>
+                            <button onClick={() => handleCollapseButton(node._id)}>
+                                <FontAwesomeIcon icon={faArrowUp} className="ml-3 cursor-pointer" />
+                            </button>
+                        </li>
+                    ) : (
+                        <li>
+                            <button onClick={() => handleExpandButton(node._id)}>
+                                <FontAwesomeIcon icon={faArrowDown} className="ml-3 cursor-pointer" />
+                            </button>
+                        </li>
+                    )}
+                </ul>
+            </div>
+
+            {expandedNodes.includes(node._id) && (resourceLoading.includes(node._id) ? false : (nodeResources[node._id]?.length === 0)) ? (
+                <div className="mx-10 my-2 text-center rounded-xl bg-white p-1 font-display">
+                    Wow such empty, press + to add resources
+                </div>
+            ) : (
+                expandedNodes.includes(node._id) && (
+                    <div className={`mx-10 my-2 text-center rounded-xl bg-white p-2 font-display`}>
+                        {resourceLoading.includes(node._id) ? (
+                            <div className="text-gray-500 italic">Loading resources...</div>
+                        ) : (
+                            (nodeResources[node._id] || []).map((resource: any, i: number) => (
+                                <div key={i} className={`flex items-center justify-between p-3 border border-gray-200 ${colorMap[node.color] || 'bg-gray-100'} mb-1`}>
+                                    <div className="flex items-center w-1/2">
+                                        <FontAwesomeIcon icon={
+                                            resource.type === 'link' ? faLink :
+                                                resource.type === 'image' ? faImage :
+                                                    faStickyNote
+                                        } className="text-sm mr-2" />
+                                        <p className="text-sm font-display">{resource.name}</p>
+                                    </div>
+                                    <div className="flex items-center w-1/3">
+                                        <img className="w-8 h-8 rounded-full mr-2" src={resource.createdBy.imgUrl || userLogo} />
+                                        <p className="font-display text-sm">{resource.createdBy.name === userObject.user.name ? "Me" : resource.createdBy.name}</p>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <ul className="flex items-center">
+                                            <li><button><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
+                                            <li><button><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
+                                            <li><button className="cursor-pointer" onClick={() => { deleteResource(resource._id) }}><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )
+            )}
+        </div>
+    );
+}
 
 function Unit() {
     const location = useLocation();
@@ -35,17 +166,43 @@ function Unit() {
     const [nodes, setNodes] = useState<any>([]);
     const [nodeResources, setNodeResources] = useState<Record<string, any[]>>({});
     const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
-    const [resourceLoading, setResourceLoading] = useState<string[]>([]); 
+    const [resourceLoading, setResourceLoading] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [newResourceModal, setNewResourceModal] = useState(false);
     const [nodeId, setNodeId] = useState("");
+
+    const moveNode = (dragIndex: number, hoverIndex: number) => {
+        setNodes((prevNodes: any[]) => {
+            const newNodes = [...prevNodes];
+            const draggedNode = newNodes[dragIndex];
+            newNodes.splice(dragIndex, 1);
+            newNodes.splice(hoverIndex, 0, draggedNode);
+            return newNodes;
+        });
+    };
+
+    const saveNodeOrder = async (reorderedNodes: any[]) => {
+        let token = userObject?.token;
+        try {
+            await axios.put(`http://147.93.127.229:3008/units/${unitId}/nodes/reorder`, {
+                nodes: reorderedNodes.map((node, index) => ({
+                    id: node._id,
+                    order: index
+                }))
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (e) {
+            console.log('Error saving node order:', e);
+        }
+    };
 
     async function handleExpandButton(nodeId: string) {
         let token = userObject?.token;
 
         if (!expandedNodes.includes(nodeId)) {
             setExpandedNodes(prev => [...prev, nodeId]);
-            setResourceLoading(prev => [...prev, nodeId]); 
+            setResourceLoading(prev => [...prev, nodeId]);
         }
 
         try {
@@ -60,7 +217,7 @@ function Unit() {
         } catch (e) {
             console.log(e);
         } finally {
-            setResourceLoading(prev => prev.filter(id => id !== nodeId)); 
+            setResourceLoading(prev => prev.filter(id => id !== nodeId));
         }
     }
 
@@ -102,12 +259,35 @@ function Unit() {
         setNodeId(nodeId);
     }
 
+    async function deleteResource(resourceId: string) {
+        let token = userObject?.token;
+        try {
+            await axios.delete(`http://147.93.127.229:3008/resource/${resourceId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+        }
+        catch (e: any) {
+            console.log(e);
+        }
+        finally {
+            navigate(0);
+        }
+    }
+
     useEffect(() => {
         getUnit();
     }, []);
 
+    useEffect(() => {
+        if (nodes.length > 0) {
+            saveNodeOrder(nodes);
+        }
+    }, [nodes]);
+
     return (
-        <>
+        <DndProvider backend={HTML5Backend}>
             <div className="flex w-full">
                 <div className="w-1/5">
                     <div className="min-h-161 shadow-2xl border-2 border-gray-300 p-5 bg-gray-200 ">
@@ -180,76 +360,23 @@ function Unit() {
                                     </div>
                                 </div>
 
-                                {nodes.map((node: any) => (
-                                    <div className={`mt-4 rounded-lg p-2 ${colorMap[node.color] || 'bg-gray-100'}`} key={node._id}>
-                                        <div className="p-4 flex items-center justify-between border rounded-2xl border-gray-100">
-                                            <p>{node.name}</p>
-                                            <ul className="flex items-center justify-between">
-                                                <li>
-                                                    <button onClick={() => handleNewRecourse(node._id)}>
-                                                        <FontAwesomeIcon icon={faPlus} className="cursor-pointer" />
-                                                    </button>
-                                                </li>
-                                                <li>
-                                                    <button disabled={isLoading} onClick={() => deleteNode(node._id)}>
-                                                        <FontAwesomeIcon icon={faTrash} className={`ml-3 cursor-pointer ${isLoading ? "text-gray-400" : ""}`} />
-                                                    </button>
-                                                </li>
-                                                <li><FontAwesomeIcon icon={faPen} className="ml-3 cursor-pointer" /></li>
-                                                {expandedNodes.includes(node._id) ? (
-                                                    <li>
-                                                        <button onClick={() => handleCollapseButton(node._id)}>
-                                                            <FontAwesomeIcon icon={faArrowUp} className="ml-3 cursor-pointer" />
-                                                        </button>
-                                                    </li>
-                                                ) : (
-                                                    <li>
-                                                        <button onClick={() => handleExpandButton(node._id)}>
-                                                            <FontAwesomeIcon icon={faArrowDown} className="ml-3 cursor-pointer" />
-                                                        </button>
-                                                    </li>
-                                                )}
-                                            </ul>
-                                        </div>
-
-                                        {node.resources.length === 0 ? (
-                                            <div className="mx-10 my-2 text-center rounded-xl bg-white p-1 font-display">
-                                                Wow such empty, press + to add resources
-                                            </div>
-                                        ) : (
-                                            expandedNodes.includes(node._id) && (
-                                                <div className={`mx-10 my-2 text-center rounded-xl bg-white p-2 font-display`}>
-                                                    {resourceLoading.includes(node._id) ? (
-                                                        <div className="text-gray-500 italic">Loading resources...</div> 
-                                                    ) : (
-                                                        (nodeResources[node._id] || []).map((resource: any, i: number) => (
-                                                            <div key={i} className={`flex items-center justify-between p-3 border border-gray-200 ${colorMap[node.color] || 'bg-gray-100'} mb-1`}>
-                                                                <div className="flex items-center w-1/2">
-                                                                    <FontAwesomeIcon icon={
-                                                                        resource.type === 'link' ? faLink :
-                                                                            resource.type === 'image' ? faImage :
-                                                                                faStickyNote
-                                                                    } className="text-sm mr-2" />
-                                                                    <p className="text-sm font-display">{resource.name}</p>
-                                                                </div>
-                                                                <div className="flex items-center w-1/3">
-                                                                    <img className="w-8 h-8 rounded-full mr-2" src={resource.createdBy.imgUrl || userLogo} />
-                                                                    <p className="font-display text-sm">{resource.createdBy.name === userObject.user.name ? "Me" : resource.createdBy.name}</p>
-                                                                </div>
-                                                                <div className="flex items-center">
-                                                                    <ul className="flex items-center">
-                                                                        <li><button><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
-                                                                        <li><button><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
-                                                                        <li><button><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    )}
-                                                </div>
-                                            )
-                                        )}
-                                    </div>
+                                {nodes.map((node: any, index: number) => (
+                                    <DraggableNode
+                                        key={node._id}
+                                        node={node}
+                                        index={index}
+                                        moveNode={moveNode}
+                                        expandedNodes={expandedNodes}
+                                        resourceLoading={resourceLoading}
+                                        nodeResources={nodeResources}
+                                        handleExpandButton={handleExpandButton}
+                                        handleCollapseButton={handleCollapseButton}
+                                        handleNewRecourse={handleNewRecourse}
+                                        deleteNode={deleteNode}
+                                        deleteResource={deleteResource}
+                                        isLoading={isLoading}
+                                        userObject={userObject}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -259,7 +386,7 @@ function Unit() {
 
             {newNodeModal && <NewNodeModal onClose={() => setNewNodeModal(false)} unitId={unitId} />}
             {newResourceModal && <NewResourceModal onClose={() => setNewResourceModal(false)} nodeId={nodeId} />}
-        </>
+        </DndProvider>
     );
 }
 

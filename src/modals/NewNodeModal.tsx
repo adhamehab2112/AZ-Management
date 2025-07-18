@@ -31,7 +31,7 @@ function NewNodeModal({ onClose, unitId }: ModalProps) {
     async function handleSubmit(formData: FormValues) {
         let token = userObject?.token;
         try {
-            let response = await axios.post(`http://147.93.127.229:3008/nodes/${unitId}`, {
+             await axios.post(`http://147.93.127.229:3008/nodes/${unitId}`, {
                 name: formData.name,
                 description: "Node description",
                 type: "folder",
