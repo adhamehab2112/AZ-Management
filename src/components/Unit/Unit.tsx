@@ -13,6 +13,7 @@ import NewNodeModal from "../../modals/NewNodeModal";
 import NewResourceModal from "../../modals/NewResourceModal";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import ViewResourceModal from "../../modals/ViewResourceModal";
 
 const colorMap: Record<string, string> = {
     yellow: "bg-yellow-200",
@@ -48,118 +49,15 @@ interface DraggableNodeProps {
     userObject: any;
 }
 
-function DraggableNode({
-    node, index, moveNode, expandedNodes, resourceLoading, nodeResources,
-    handleExpandButton, handleCollapseButton, handleNewRecourse, deleteNode,
-    deleteResource, isLoading, userObject
-}: DraggableNodeProps) {
-    const [{ isDragging }, drag] = useDrag({
-        type: ItemType,
-        item: { id: node._id, index },
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-        }),
-    });
 
-    const [, drop] = useDrop({
-        accept: ItemType,
-        hover: (draggedItem: DragItem) => {
-            if (draggedItem.index !== index) {
-                moveNode(draggedItem.index, index);
-                draggedItem.index = index;
-            }
-        },
-    });
-    const setRef = useCallback((node: HTMLDivElement | null) => {
-        if (node) drag(drop(node));
-    }, [drag, drop]);
-    return (
-        <div
-           ref={setRef}
-            className={`mt-4 rounded-lg p-2 ${colorMap[node.color] || 'bg-gray-100'} ${isDragging ? 'opacity-50' : ''
-                } cursor-move transition-all duration-200 hover:shadow-lg`}
-        >
-            <div className="p-4 flex items-center justify-between border rounded-2xl border-gray-100">
-                <div className="flex items-center">
-                    <span className="mr-2 text-gray-400">⋮⋮</span>
-                    <p>{node.name}</p>
-                </div>
-                <ul className="flex items-center justify-between">
-                    <li>
-                        <button onClick={() => handleNewRecourse(node._id)}>
-                            <FontAwesomeIcon icon={faPlus} className="cursor-pointer" />
-                        </button>
-                    </li>
-                    <li>
-                        <button disabled={isLoading} onClick={() => deleteNode(node._id)}>
-                            <FontAwesomeIcon icon={faTrash} className={`ml-3 cursor-pointer ${isLoading ? "text-gray-400" : ""}`} />
-                        </button>
-                    </li>
-                    <li><FontAwesomeIcon icon={faPen} className="ml-3 cursor-pointer" /></li>
-                    {expandedNodes.includes(node._id) ? (
-                        <li>
-                            <button onClick={() => handleCollapseButton(node._id)}>
-                                <FontAwesomeIcon icon={faArrowUp} className="ml-3 cursor-pointer" />
-                            </button>
-                        </li>
-                    ) : (
-                        <li>
-                            <button onClick={() => handleExpandButton(node._id)}>
-                                <FontAwesomeIcon icon={faArrowDown} className="ml-3 cursor-pointer" />
-                            </button>
-                        </li>
-                    )}
-                </ul>
-            </div>
-
-            {expandedNodes.includes(node._id) && (resourceLoading.includes(node._id) ? false : (nodeResources[node._id]?.length === 0)) ? (
-                <div className="mx-10 my-2 text-center rounded-xl bg-white p-1 font-display">
-                    Wow such empty, press + to add resources
-                </div>
-            ) : (
-                expandedNodes.includes(node._id) && (
-                    <div className={`mx-10 my-2 text-center rounded-xl bg-white p-2 font-display`}>
-                        {resourceLoading.includes(node._id) ? (
-                            <div className="text-gray-500 italic">Loading resources...</div>
-                        ) : (
-                            (nodeResources[node._id] || []).map((resource: any, i: number) => (
-                                <div key={i} className={`flex items-center justify-between p-3 border border-gray-200 ${colorMap[node.color] || 'bg-gray-100'} mb-1`}>
-                                    <div className="flex items-center w-1/2">
-                                        <FontAwesomeIcon icon={
-                                            resource.type === 'link' ? faLink :
-                                                resource.type === 'image' ? faImage :
-                                                    faStickyNote
-                                        } className="text-sm mr-2" />
-                                        <p className="text-sm font-display">{resource.name}</p>
-                                    </div>
-                                    <div className="flex items-center w-1/3">
-                                        <img className="w-8 h-8 rounded-full mr-2" src={resource.createdBy.imgUrl || userLogo} />
-                                        <p className="font-display text-sm">{resource.createdBy.name === userObject.user.name ? "Me" : resource.createdBy.name}</p>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <ul className="flex items-center">
-                                            <li><button><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
-                                            <li><button><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
-                                            <li><button className="cursor-pointer" onClick={() => { deleteResource(resource._id) }}><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                )
-            )}
-        </div>
-    );
-}
 
 function Unit() {
+    
     const location = useLocation();
     let navigate = useNavigate();
     const userObjectString = localStorage.getItem("userDetails");
     const userObject = userObjectString ? JSON.parse(userObjectString) : null;
     const { unitId } = useParams<string>();
-
     const [loadingSkeleton, setLoadingSkeleton] = useState(true);
     const [newNodeModal, setNewNodeModal] = useState(false);
     const [unit, setUnit] = useState<any>(null);
@@ -170,7 +68,112 @@ function Unit() {
     const [isLoading, setIsLoading] = useState(false);
     const [newResourceModal, setNewResourceModal] = useState(false);
     const [nodeId, setNodeId] = useState("");
+    const [viewResource, setViewResource] = useState(false);
+    const [resource, setResource] = useState({});
+    function DraggableNode({
+        node, index, moveNode, expandedNodes, resourceLoading, nodeResources,
+        handleExpandButton, handleCollapseButton, handleNewRecourse, deleteNode,
+        deleteResource, isLoading, userObject
+    }: DraggableNodeProps) {
+        const [{ isDragging }, drag] = useDrag({
+            type: ItemType,
+            item: { id: node._id, index },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+        });
 
+        const [, drop] = useDrop({
+            accept: ItemType,
+            hover: (draggedItem: DragItem) => {
+                if (draggedItem.index !== index) {
+                    moveNode(draggedItem.index, index);
+                    draggedItem.index = index;
+                }
+            },
+        });
+        const setRef = useCallback((node: HTMLDivElement | null) => {
+            if (node) drag(drop(node));
+        }, [drag, drop]);
+        return (
+            <div
+                ref={setRef}
+                className={`mt-4 rounded-lg p-2 ${colorMap[node.color] || 'bg-gray-100'} ${isDragging ? 'opacity-50' : ''
+                    } cursor-move transition-all duration-200 hover:shadow-lg`}
+            >
+                <div className="p-4 flex items-center justify-between border rounded-2xl border-gray-100">
+                    <div className="flex items-center">
+                        <span className="mr-2 text-gray-400">⋮⋮</span>
+                        <p>{node.name}</p>
+                    </div>
+                    <ul className="flex items-center justify-between">
+                        <li>
+                            <button onClick={() => handleNewRecourse(node._id)}>
+                                <FontAwesomeIcon icon={faPlus} className="cursor-pointer" />
+                            </button>
+                        </li>
+                        <li>
+                            <button disabled={isLoading} onClick={() => deleteNode(node._id)}>
+                                <FontAwesomeIcon icon={faTrash} className={`ml-3 cursor-pointer ${isLoading ? "text-gray-400" : ""}`} />
+                            </button>
+                        </li>
+                        <li><FontAwesomeIcon icon={faPen} className="ml-3 cursor-pointer" /></li>
+                        {expandedNodes.includes(node._id) ? (
+                            <li>
+                                <button onClick={() => handleCollapseButton(node._id)}>
+                                    <FontAwesomeIcon icon={faArrowUp} className="ml-3 cursor-pointer" />
+                                </button>
+                            </li>
+                        ) : (
+                            <li>
+                                <button onClick={() => handleExpandButton(node._id)}>
+                                    <FontAwesomeIcon icon={faArrowDown} className="ml-3 cursor-pointer" />
+                                </button>
+                            </li>
+                        )}
+                    </ul>
+                </div>
+
+                {expandedNodes.includes(node._id) && (resourceLoading.includes(node._id) ? false : (nodeResources[node._id]?.length === 0)) ? (
+                    <div className="mx-10 my-2 text-center rounded-xl bg-white p-1 font-display">
+                        Wow such empty, press + to add resources
+                    </div>
+                ) : (
+                    expandedNodes.includes(node._id) && (
+                        <div className={`mx-10 my-2 text-center rounded-xl bg-white p-2 font-display`}>
+                            {resourceLoading.includes(node._id) ? (
+                                <div className="text-gray-500 italic">Loading resources...</div>
+                            ) : (
+                                (nodeResources[node._id] || []).map((resource: any, i: number) => (
+                                    <div key={i} className={`flex items-center justify-between p-3 border border-gray-200 ${colorMap[node.color] || 'bg-gray-100'} mb-1`}>
+                                        <div className="flex items-center w-1/2">
+                                            <FontAwesomeIcon icon={
+                                                resource.type === 'link' ? faLink :
+                                                    resource.type === 'image' ? faImage :
+                                                        faStickyNote
+                                            } className="text-sm mr-2" />
+                                            <p className="text-sm font-display">{resource.name}</p>
+                                        </div>
+                                        <div className="flex items-center w-1/3">
+                                            <img className="w-8 h-8 rounded-full mr-2" src={resource.createdBy.imgUrl || userLogo} />
+                                            <p className="font-display text-sm">{resource.createdBy.name === userObject.user.name ? "Me" : resource.createdBy.name}</p>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <ul className="flex items-center">
+                                                <li><button className="cursor-pointer" onClick={() => { handleViewResource(resource) }}><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
+                                                <li><button ><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
+                                                <li><button className="cursor-pointer" onClick={() => { deleteResource(resource._id) }}><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )
+                )}
+            </div>
+        );
+    }
     const moveNode = (dragIndex: number, hoverIndex: number) => {
         setNodes((prevNodes: any[]) => {
             const newNodes = [...prevNodes];
@@ -181,21 +184,7 @@ function Unit() {
         });
     };
 
-    const saveNodeOrder = async (reorderedNodes: any[]) => {
-        let token = userObject?.token;
-        try {
-            await axios.put(`http://147.93.127.229:3008/units/${unitId}/nodes/reorder`, {
-                nodes: reorderedNodes.map((node, index) => ({
-                    id: node._id,
-                    order: index
-                }))
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-        } catch (e) {
-            console.log('Error saving node order:', e);
-        }
-    };
+
 
     async function handleExpandButton(nodeId: string) {
         let token = userObject?.token;
@@ -276,15 +265,17 @@ function Unit() {
         }
     }
 
+
+    function handleViewResource(resource: any) {
+        setResource(resource);
+        setViewResource(true);
+    }
+
     useEffect(() => {
         getUnit();
     }, []);
 
-    useEffect(() => {
-        if (nodes.length > 0) {
-            saveNodeOrder(nodes);
-        }
-    }, [nodes]);
+
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -386,6 +377,7 @@ function Unit() {
 
             {newNodeModal && <NewNodeModal onClose={() => setNewNodeModal(false)} unitId={unitId} />}
             {newResourceModal && <NewResourceModal onClose={() => setNewResourceModal(false)} nodeId={nodeId} />}
+            {viewResource && <ViewResourceModal onClose={()=>{setViewResource(false)}} resource={resource} />}
         </DndProvider>
     );
 }

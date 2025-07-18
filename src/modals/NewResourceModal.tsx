@@ -45,6 +45,7 @@ function NewResourceModal({ onClose, nodeId }: ModalProps) {
         else if (selectedType === 'image') {
             payload.data.imageUrl = formData.imageUrl;
         }
+        console.log(payload);
         await axios.post(`http://147.93.127.229:3008/resource/${nodeId}`, payload, {
             headers:
             {
@@ -77,7 +78,7 @@ function NewResourceModal({ onClose, nodeId }: ModalProps) {
                 },
             });
 
-            formik.setFieldValue('coverUrl', response.data.message);
+            formik.setFieldValue('imageUrl', response.data.message);
         } catch (e: any) {
             console.error("Upload failed:", e.response?.data || e.message);
         }
@@ -85,8 +86,7 @@ function NewResourceModal({ onClose, nodeId }: ModalProps) {
     async function handleFileChange(event: any) {
         setSpinner(true);
         const file = event.currentTarget.files[0];
-        imgUrl = await getImgUrl(file);
-        formik.setFieldValue('imageUrl', imgUrl);
+        await getImgUrl(file);
         setSpinner(false);
         if (file) {
             const reader = new FileReader();
