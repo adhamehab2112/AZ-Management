@@ -164,7 +164,7 @@ function Unit() {
                                         <div className="flex items-center">
                                             <ul className="flex items-center">
                                                 <li><button className="cursor-pointer" onClick={() => { handleViewResource(resource) }}><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
-                                                <li><button className="cursor-pointer" onClick={()=>{handleEditResource(resource)}} ><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
+                                                <li><button className="cursor-pointer" onClick={() => { handleEditResource(resource) }} ><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
                                                 <li><button className="cursor-pointer" onClick={() => { deleteResource(resource._id) }}><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
                                             </ul>
                                         </div>
@@ -273,8 +273,7 @@ function Unit() {
         setResource(resource);
         setViewResource(true);
     }
-    function handleEditResource (resource : any)
-    {
+    function handleEditResource(resource: any) {
         setEditableResource(resource);
         setEditResourceModal(true);
     }
@@ -359,24 +358,31 @@ function Unit() {
                                     </div>
                                 </div>
 
-                                {nodes.map((node: any, index: number) => (
-                                    <DraggableNode
-                                        key={node._id}
-                                        node={node}
-                                        index={index}
-                                        moveNode={moveNode}
-                                        expandedNodes={expandedNodes}
-                                        resourceLoading={resourceLoading}
-                                        nodeResources={nodeResources}
-                                        handleExpandButton={handleExpandButton}
-                                        handleCollapseButton={handleCollapseButton}
-                                        handleNewRecourse={handleNewRecourse}
-                                        deleteNode={deleteNode}
-                                        deleteResource={deleteResource}
-                                        isLoading={isLoading}
-                                        userObject={userObject}
-                                    />
-                                ))}
+                                {nodes.length === 0 ? (
+                                    <p className="text-gray-500 font-display italic mt-5">
+                                        No nodes available. Press <span className="font-bold">+</span> button to add new nodes.
+                                    </p>
+                                ) : (
+                                    nodes.map((node: any, index: number) => (
+                                        <DraggableNode
+                                            key={node._id}
+                                            node={node}
+                                            index={index}
+                                            moveNode={moveNode}
+                                            expandedNodes={expandedNodes}
+                                            resourceLoading={resourceLoading}
+                                            nodeResources={nodeResources}
+                                            handleExpandButton={handleExpandButton}
+                                            handleCollapseButton={handleCollapseButton}
+                                            handleNewRecourse={handleNewRecourse}
+                                            deleteNode={deleteNode}
+                                            deleteResource={deleteResource}
+                                            isLoading={isLoading}
+                                            userObject={userObject}
+                                        />
+                                    ))
+                                )}
+
                             </div>
                         </div>
                     ) : null}
