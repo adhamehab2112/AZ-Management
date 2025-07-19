@@ -7,7 +7,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from "react";
 import axios from "axios";
-function UnitMembers() {
+function UnitInvitations() {
     const location = useLocation();
     let navigate = useNavigate();
     const userObjectString = localStorage.getItem("userDetails");
@@ -68,9 +68,9 @@ function UnitMembers() {
                         <FontAwesomeIcon icon={faUser} className={`${!(location.pathname === `/files/${unitId}/members`) ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
                         <p className={`${!(location.pathname === `/files/${unitId}/members`) ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Members</p>
                     </Link>
-                    <Link to={`/files/${unitId}/invitations`} className={`${!(location.pathname === 'invitation') ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
-                        <FontAwesomeIcon icon={faGear} className={`${!(location.pathname === 'invitations') ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
-                        <p className={`${!(location.pathname === '/invitations') ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Invitations</p>
+                    <Link to={`/files/${unitId}/invitations`} className={`${!(location.pathname === `/files/${unitId}/invitations`) ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
+                        <FontAwesomeIcon icon={faGear} className={`${!(location.pathname === `/files/${unitId}/invitations`) ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
+                        <p className={`${!(location.pathname === `/files/${unitId}/invitations`) ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Invitations</p>
                     </Link>
                     <div className="mt-50 w-3/4 bg-red-500 mx-auto text-center p-1 rounded-sm text-white font-display cursor-pointer hover:bg-red-700" onClick={() => { navigate("/files") }}>
                         <p>Leave Unit</p>
@@ -96,44 +96,42 @@ function UnitMembers() {
                         <p className="font-display text-gray-500 text-xl italic ">{unit?.description}</p>
                         <p className="font-display">Owner : <span className="text-blue-600">{unit.owner.name}</span></p>
                         <hr className="text-gray-400 mt-5 mr-5" />
-                        <h2 className="font-display text-xl mt-5 underline underline-offset-6 ">Unit Members :- </h2>
-                        {(() => {
-                            const members = users.filter((user: any) => user.status !== 'PENDING' && user._id !== unit.owner._id);
-
-                            if (members.length === 0) {
+                        <h2 className="font-display text-xl mt-5 underline underline-offset-6 ">Unit Invitations :- </h2>
+                        {users.filter((user: any) => user.status === 'PENDING').length === 0 ? (
+                            <p className="font-display text-gray-600 mt-4 italic">
+                                No pending users. Press <span className="font-bold">+ Invite</span> to invite new users.
+                            </p>
+                        ) : (
+                            users.map((user: any, _i) => {
+                                if (user.status !== 'PENDING') return null;
                                 return (
-                                    <p className="font-display text-gray-600 mt-4 italic">
-                                        No members. Press <span className="font-bold">+ Invite</span> to add members.
-                                    </p>
-                                );
-                            }
-
-                            return members.map((user: any, _i) => (
-                                <div key={_i} className="m-4 border w-1/2 p-2 bg-[#4204a0] rounded-sm shadow-2xl flex items-center justify-between">
-                                    <div className="flex items-center">
-                                        <img
-                                            className="w-14 h-14 rounded-full border p-1 bg-white"
-                                            src={user.imgUrl || userLogo}
-                                            alt="User"
-                                        />
-                                        <div className="ml-3">
-                                            <p className="font-display text-white">{user.name}</p>
-                                            <p className="font-display text-gray-400 italic">{user.email}</p>
+                                    <div key={_i} className="m-4 border w-1/2 p-2 bg-[#4204a0] rounded-sm shadow-2xl flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <img
+                                                className="w-14 h-14 rounded-full border p-1 bg-white"
+                                                src={user.imgUrl || userLogo}
+                                                alt="User"
+                                            />
+                                            <div className="ml-3">
+                                                <p className="font-display text-white">{user.name}</p>
+                                                <p className="font-display text-gray-400 italic">{user.email}</p>
+                                            </div>
                                         </div>
+                                        <div className="font-display text-gray-400 italic mr-3">
+                                            <p>Pending...</p>
+                                        </div>
+                                        {userObject.user._id === unit.owner._id && (
+                                            <div
+                                                className="mr-4 p-2 rounded-xl bg-red-600 text-white cursor-pointer transition-all duration-300 transform hover:scale-105"
+                                                onClick={() => removeUser(user._id)}
+                                            >
+                                                <button className="cursor-pointer">Remove User</button>
+                                            </div>
+                                        )}
                                     </div>
-                                    {userObject.user._id === unit.owner._id && (
-                                        <div
-                                            className="mr-4 p-2 rounded-xl bg-red-600 text-white cursor-pointer transition-all duration-300 transform hover:scale-105"
-                                            onClick={() => removeUser(user._id)}
-                                        >
-                                            <button className="cursor-pointer">Remove User</button>
-                                        </div>
-                                    )}
-                                </div>
-                            ));
-                        })()}
-
-
+                                );
+                            })
+                        )}
                     </div>
                 )}
             </div>
@@ -141,4 +139,4 @@ function UnitMembers() {
     );
 
 }
-export default UnitMembers
+export default UnitInvitations

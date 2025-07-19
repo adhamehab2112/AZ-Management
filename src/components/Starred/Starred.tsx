@@ -70,7 +70,6 @@ function Starred() {
 
     return (
         <div className="flex w-full">
-            {/* Sidebar */}
             <div className="w-1/5">
                 <div className="min-h-161 shadow-2xl border-2 border-gray-300 p-5 bg-gray-200">
                     <div
@@ -90,10 +89,7 @@ function Starred() {
 
                     <hr className="mt-10 text-gray-500" />
 
-                    <div className="flex items-center mt-10 bg-white w-1/3 text-center border border-gray-400 rounded-2xl p-2 shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                        <button className="font-display text-lg font-bold w-full mr-2">+ New</button>
-                    </div>
-
+                   
                     <Link
                         to="/files"
                         className={`${location.pathname !== "/files"

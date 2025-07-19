@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom"
 import userLogo from "../../assets/user.svg";
 import defaultUnit from "../../assets/default-unit.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faNoteSticky, faStar  } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faNoteSticky, faStar } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -127,23 +127,32 @@ function Units() {
                     </div>) : (
                         <div className="px-10 py-4">
                             <div className="grid grid-cols-2 gap-6">
-                                {currentUnits.map((unit: any, index: number) => (
-                                    <div key={index} className="transition-all duration-300 transform hover:scale-105">
-                                        <div className="rounded overflow-hidden shadow-md bg-white">
-                                            <Link to={unit._id}><img className="w-full h-40 object-cover" src={unit.coverUrl ? unit.coverUrl : defaultUnit} alt="Unit Preview" /></Link>
-                                            <div className="p-3 flex items-center justify-between z-10">
-                                                <h2 className="font-display font-semibold">{unit.name}</h2>
-                                                {starredUnites.includes(unit._id)
-                                                    ? <FontAwesomeIcon icon={faStar} className="text-yellow-400 cursor-pointer" onClick={() => { unstartUnit(unit._id) }} />
-                                                    : <FontAwesomeIcon icon={faStar} className="text-gray-400 cursor-pointer" onClick={() => { starUnit(unit._id) }} />}
+                                {units.length === 0 ? (
+                                    <p className="text-gray-500 italic font-display mt-10 text-lg text-center">
+                                        No units available. Press <span className="font-bold">+ New</span> button to create one.
+                                    </p>
+                                ) : (
+                                    currentUnits.map((unit: any, index: number) => (
+                                        <div key={index} className="transition-all duration-300 transform hover:scale-105">
+                                            <div className="rounded overflow-hidden shadow-md bg-white">
+                                                <Link to={unit._id}>
+                                                    <img className="w-full h-40 object-cover" src={unit.coverUrl ? unit.coverUrl : defaultUnit} alt="Unit Preview" />
+                                                </Link>
+                                                <div className="p-3 flex items-center justify-between z-10">
+                                                    <h2 className="font-display font-semibold">{unit.name}</h2>
+                                                    {starredUnites.includes(unit._id)
+                                                        ? <FontAwesomeIcon icon={faStar} className="text-yellow-400 cursor-pointer" onClick={() => { unstartUnit(unit._id) }} />
+                                                        : <FontAwesomeIcon icon={faStar} className="text-gray-400 cursor-pointer" onClick={() => { starUnit(unit._id) }} />}
+                                                </div>
+                                                <p className="px-3 font-display text-sm text-gray-600">{unit.description}</p>
+                                                <p className="px-3 mt-2 mb-3 text-sm text-gray-500 font-display">
+                                                    Created by: <span className="font-medium">{unit.owner.name}</span>
+                                                </p>
                                             </div>
-                                            <p className="px-3 font-display text-sm text-gray-600">{unit.description}</p>
-                                            <p className="px-3 mt-2 mb-3 text-sm text-gray-500 font-display">
-                                                Created by: <span className="font-medium">{unit.owner.name}</span>
-                                            </p>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
+
                             </div>
                             <div className="flex justify-center items-center mt-4 space-x-4">
                                 <button
@@ -159,7 +168,7 @@ function Units() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 rounded-xl font-bold font-display text-white cursor-pointer border-[#29015f] bg-[#29015f]" 
+                                    className="px-4 py-2 rounded-xl font-bold font-display text-white cursor-pointer border-[#29015f] bg-[#29015f]"
                                 >
                                     Next
                                 </button>
