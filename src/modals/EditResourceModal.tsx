@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 interface ModalProps {
     onClose: () => void,
     nodeId: string | undefined;
+    resource : any ;
 }
 
 interface FormValues {
@@ -20,10 +21,9 @@ interface FormValues {
 }
 
 
-function NewResourceModal({ onClose, nodeId }: ModalProps) {
-    
+function EditResourceModal({ onClose, nodeId , resource }: ModalProps) {
     let navigate = useNavigate();
-    let [selectedType, setSelectedType] = useState("text");
+    let [selectedType, setSelectedType] = useState(resource.type);
     let [imgContent, setImgContent] = useState<string | null>(null);
     let [spinner, setSpinner] = useState(false);
     const userObjectString = localStorage.getItem("userDetails");
@@ -56,12 +56,12 @@ function NewResourceModal({ onClose, nodeId }: ModalProps) {
     }
     let formik = useFormik<FormValues>({
         initialValues: {
-            name: "",
-            description: "",
-            type: "",
-            link: "",
-            text: "",
-            imageUrl: ""
+            name: resource.name,
+            description: resource.description,
+            type: resource.type,
+            link: resource.data.link??"",
+            text:resource.data.text??"",
+            imageUrl: resource.data.imageUrl??""
 
         },
         onSubmit: handleSubmit
@@ -183,4 +183,4 @@ function NewResourceModal({ onClose, nodeId }: ModalProps) {
     )
 }
 
-export default NewResourceModal
+export default EditResourceModal

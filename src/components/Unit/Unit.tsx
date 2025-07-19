@@ -14,6 +14,7 @@ import NewResourceModal from "../../modals/NewResourceModal";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import ViewResourceModal from "../../modals/ViewResourceModal";
+import EditResourceModal from "../../modals/EditResourceModal";
 
 const colorMap: Record<string, string> = {
     yellow: "bg-yellow-200",
@@ -52,7 +53,7 @@ interface DraggableNodeProps {
 
 
 function Unit() {
-    
+
     const location = useLocation();
     let navigate = useNavigate();
     const userObjectString = localStorage.getItem("userDetails");
@@ -70,6 +71,8 @@ function Unit() {
     const [nodeId, setNodeId] = useState("");
     const [viewResource, setViewResource] = useState(false);
     const [resource, setResource] = useState({});
+    const [editResourceModal, setEditResourceModal] = useState(false);
+    const [editableResource, setEditableResource] = useState({});
     function DraggableNode({
         node, index, moveNode, expandedNodes, resourceLoading, nodeResources,
         handleExpandButton, handleCollapseButton, handleNewRecourse, deleteNode,
@@ -161,7 +164,7 @@ function Unit() {
                                         <div className="flex items-center">
                                             <ul className="flex items-center">
                                                 <li><button className="cursor-pointer" onClick={() => { handleViewResource(resource) }}><FontAwesomeIcon icon={faEye} className="mr-4 text-sm" /></button></li>
-                                                <li><button ><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
+                                                <li><button className="cursor-pointer" onClick={()=>{handleEditResource(resource)}} ><FontAwesomeIcon icon={faPen} className="mr-4 text-sm" /></button></li>
                                                 <li><button className="cursor-pointer" onClick={() => { deleteResource(resource._id) }}><FontAwesomeIcon icon={faTrash} className="mr-4 text-sm" /></button></li>
                                             </ul>
                                         </div>
@@ -270,6 +273,11 @@ function Unit() {
         setResource(resource);
         setViewResource(true);
     }
+    function handleEditResource (resource : any)
+    {
+        setEditableResource(resource);
+        setEditResourceModal(true);
+    }
 
     useEffect(() => {
         getUnit();
@@ -377,7 +385,8 @@ function Unit() {
 
             {newNodeModal && <NewNodeModal onClose={() => setNewNodeModal(false)} unitId={unitId} />}
             {newResourceModal && <NewResourceModal onClose={() => setNewResourceModal(false)} nodeId={nodeId} />}
-            {viewResource && <ViewResourceModal onClose={()=>{setViewResource(false)}} resource={resource} />}
+            {viewResource && <ViewResourceModal onClose={() => { setViewResource(false) }} resource={resource} />}
+            {editResourceModal && <EditResourceModal onClose={() => { setEditResourceModal(false) }} nodeId={nodeId} resource={editableResource} />}
         </DndProvider>
     );
 }
