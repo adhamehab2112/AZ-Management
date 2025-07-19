@@ -302,11 +302,11 @@ function Unit() {
                         <div className="flex items-center mt-10 cursor-pointer bg-white w-1/2 text-center border-1 border-gray-400 rounded-2xl p-2 shadow-2xl transition-all duration-300 transform hover:scale-105">
                             <button className="font-display text-lg font-bold cursor-pointer w-full mr-2"  >+ Invite</button>
                         </div>
-                        <Link to="/files" className={`${!(location.pathname === `/files/${unitId}`) ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
+                        <Link to={`/files/${unitId}`} className={`${!(location.pathname === `/files/${unitId}`) ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
                             <FontAwesomeIcon icon={faNoteSticky} className={`${!(location.pathname === `/files/${unitId}`) ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
                             <p className={`${!(location.pathname === `/files/${unitId}`) ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Nodes</p>
                         </Link>
-                        <Link to="starred" className={`${!(location.pathname === 'starred') ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
+                        <Link to="members" className={`${!(location.pathname === 'members') ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
                             <FontAwesomeIcon icon={faUser} className={`${!(location.pathname === 'starred') ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
                             <p className={`${!(location.pathname === '/starred') ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Members</p>
                         </Link>
