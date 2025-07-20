@@ -25,6 +25,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.5.2",
     "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^7.6.3",
     "react-tsparticles": "^2.12.2",
