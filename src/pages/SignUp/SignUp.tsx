@@ -1,7 +1,8 @@
 import AZ_Logo from "../../assets/logo2.png"
 import { useFormik } from "formik";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 interface SignUpFormValues {
     name: string,
     email: string,
@@ -10,18 +11,22 @@ interface SignUpFormValues {
 }
 
 function SignUp() {
+    let navigate = useNavigate();
+    const [error , setError] = useState("");
    async function handleSignUpSubmit(formValues: SignUpFormValues) {
         try {
-            let response = await axios.post(`http://147.93.127.229:3008/account/signup`, {
+             await axios.post(`http://147.93.127.229:3008/account/signup`, {
                 name:formValues.name ,
                 email:formValues.email,
                 password:formValues.password,
                 username:formValues.username
             });
-            console.log(response);
+            navigate("/login");
+            
         }
         catch (e: any) {
             console.log(e);
+            setError(e.response.data.error);
 
         }
     }
@@ -78,7 +83,7 @@ function SignUp() {
                     </div>
                     <button type="submit" className="font-display text-white bg-[#9c09c5] mt-3 w-full rounded-xs py-1 text-lg  cursor-pointer hover:bg-[#c17dd4] transition-all duration-200">Sign Up</button>
                 </form>
-
+                {error?(<p className="font-display text-red-600 mt-2">{error}</p>):("")}
             </div>
             <div className="mx-auto w-1/4 text-center mt-4 p-5 border border-white bg-white/20 backdrop-blur-md">
                 <p className="text-white font-display">Already Have an Account? <Link to="/login" className="underline cursor-pointer">Login</Link></p>

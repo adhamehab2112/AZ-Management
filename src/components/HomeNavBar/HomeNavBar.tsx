@@ -29,13 +29,12 @@ function HomeNavBar() {
     const userObject = userObjectString ? JSON.parse(userObjectString) : null;
     const username: string = userObject?.user?.name || "";
 
-   function handleLogout()
-   {
-    localStorage.removeItem('userDetails');
-    navigate("/");
+    function handleLogout() {
+        localStorage.removeItem('userDetails');
+        navigate("/");
 
-   }
-   
+    }
+
     function handleBellClick() {
         if (!dropdown) getNotifications();
         setDropdown(!dropdown);
@@ -66,7 +65,14 @@ function HomeNavBar() {
                     Authorization: `Bearer ${userObject.token}`,
                 },
             });
-            setNotifications(response.data.notifications.reverse());
+            const sorted = response.data.notifications.sort(
+                (a: any, b: any) => {
+                    if (a.seen === b.seen) return 0;
+                    return a.seen ? 1 : -1;
+                }
+            );
+
+            setNotifications(sorted);
         } catch (e: any) {
             console.log(e);
         } finally {
@@ -88,17 +94,18 @@ function HomeNavBar() {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            console.log(response.data.count);
             setNotificationCount(response.data.count);
         } catch (error) {
             console.error("Error fetching notification count:", error);
         }
     }
-    
+
 
     useEffect(() => {
         setUserIcon(username.charAt(0).toUpperCase());
         getNotificationCount();
-        const interval = setInterval(() => {
+        const intervalId = setInterval(() => {
             getNotificationCount();
         }, 3000);
         const handleClickOutside = (event: MouseEvent) => {
@@ -113,7 +120,10 @@ function HomeNavBar() {
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () => {
+            clearInterval(intervalId);
+            document.removeEventListener("mousedown", handleClickOutside)
+        };
     }, []);
     useEffect(() => {
         if (usersSearchValue.trim() === "") {
@@ -134,10 +144,10 @@ function HomeNavBar() {
 
             <div className="w-1/4">
                 <ul className="flex items-center justify-between">
-                    <li><Link to ="/home" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/home" ? "active-page" :""}`}>Home</Link></li>
-                    <li><Link to="/files" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/files" ? "active-page" :""}`}>Files</Link></li>
-                    <li><Link to="/notes" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/notes" ? "active-page" :""}`}>Notes</Link></li>
-                    <li><Link to="/tasks" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/tasks" ? "active-page" :""}`}>Tasks</Link></li>
+                    <li><Link to="/home" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/home" ? "active-page" : ""}`}>Home</Link></li>
+                    <li><Link to="/files" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/files" ? "active-page" : ""}`}>Files</Link></li>
+                    <li><Link to="/notes" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/notes" ? "active-page" : ""}`}>Notes</Link></li>
+                    <li><Link to="/tasks" className={`mx-4 text-white font-display cursor-pointer ${location.pathname == "/tasks" ? "active-page" : ""}`}>Tasks</Link></li>
                 </ul>
             </div>
 
@@ -170,7 +180,7 @@ function HomeNavBar() {
                                         </div>
                                     ) : filteredUsers.length > 0 ? (
                                         filteredUsers.map((user: any) => (
-                                            <div key={user._id} className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" onClick={()=>{navigate(`/user-profile/${user.username}`)}}>
+                                            <div key={user._id} className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" onClick={() => { navigate(`/user-profile/${user.username}`) }}>
                                                 <img
                                                     src={user.imgUrl ? user.imgUrl : userLogo}
                                                     alt="user"
@@ -216,7 +226,7 @@ function HomeNavBar() {
                                     </div>
                                 ) : (
                                     notifications.map((notification: any, index: number) => (
-                                        <div
+                                        <Link to={`/files/invitations`}
                                             key={index}
                                             className={`mb-5 flex items-center gap-3 text-left p-2 rounded-md hover:bg-gray-300 shadow-sm transition-all duration-200 ease-in-out ${notification.seen ? "bg-white" : "bg-gray-400"
                                                 }`}
@@ -229,14 +239,14 @@ function HomeNavBar() {
                                             <p className="text-sm font-display">
                                                 {notification.actorId.name} invited you to his unit "{notification.unitName}"
                                             </p>
-                                        </div>
+                                        </Link>
                                     ))
                                 )}
                             </div>
                         )}
                     </div>
 
-                    <button className="mr-5 text-white font-display text-xl cursor-pointer" onClick={()=>{handleLogout()}}>
+                    <button className="mr-5 text-white font-display text-xl cursor-pointer" onClick={() => { handleLogout() }}>
                         <FontAwesomeIcon icon={faRightFromBracket} className="hover:text-gray-400" />
                     </button>
                 </div>

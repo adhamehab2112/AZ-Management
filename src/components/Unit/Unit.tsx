@@ -15,6 +15,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import ViewResourceModal from "../../modals/ViewResourceModal";
 import EditResourceModal from "../../modals/EditResourceModal";
+import InviteUserModal from "../../modals/InvitUserMoadl";
 
 const colorMap: Record<string, string> = {
     yellow: "bg-yellow-200",
@@ -73,6 +74,8 @@ function Unit() {
     const [resource, setResource] = useState({});
     const [editResourceModal, setEditResourceModal] = useState(false);
     const [editableResource, setEditableResource] = useState({});
+    const [leaving, setLeaving] = useState(false);
+    const [inviteUserModal, setInviteUserModal] = useState(false);
     function DraggableNode({
         node, index, moveNode, expandedNodes, resourceLoading, nodeResources,
         handleExpandButton, handleCollapseButton, handleNewRecourse, deleteNode,
@@ -277,6 +280,30 @@ function Unit() {
         setEditableResource(resource);
         setEditResourceModal(true);
     }
+    async function leaveUnit(unitId: string) {
+        setLeaving(true);
+        let token = userObject?.token;
+        try {
+            await axios.delete(`http://147.93.127.229:3008/units/leave/${unitId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+        }
+        catch (e: any) {
+            console.log(e);
+        }
+        finally {
+            navigate('/files');
+        }
+
+
+    }
+
+    function handleInvite()
+    {
+        setInviteUserModal(true);
+    }
 
     useEffect(() => {
         getUnit();
@@ -299,7 +326,7 @@ function Unit() {
                         </div>
                         <hr className="mt-10 text-gray-500" />
                         <div className="flex items-center mt-10 cursor-pointer bg-white w-1/2 text-center border-1 border-gray-400 rounded-2xl p-2 shadow-2xl transition-all duration-300 transform hover:scale-105">
-                            <button className="font-display text-lg font-bold cursor-pointer w-full mr-2"  >+ Invite</button>
+                            <button className="font-display text-lg font-bold cursor-pointer w-full mr-2" onClick={()=>{handleInvite()}} >+ Invite</button>
                         </div>
                         <Link to={`/files/${unitId}`} className={`${!(location.pathname === `/files/${unitId}`) ? "flex items-center mt-5 ml-2 cursor-pointer" : "flex items-center mt-5  cursor-pointer border border-[#29015f] p-2 w-1/2 rounded-xl bg-[#29015f]"}`}>
                             <FontAwesomeIcon icon={faNoteSticky} className={`${!(location.pathname === `/files/${unitId}`) ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
@@ -313,8 +340,8 @@ function Unit() {
                             <FontAwesomeIcon icon={faGear} className={`${!(location.pathname === 'invitations') ? "text-[#29015f] text-xl" : "text-white text-xl"}`} />
                             <p className={`${!(location.pathname === '/invitations') ? "ml-2 font-bold font-display text-[#29015f] hover:underline" : "ml-2 font-bold font-display text-white hover:underline"}`}>Invitations</p>
                         </Link>
-                        <div className="mt-50 w-3/4 bg-red-500 mx-auto text-center p-1 rounded-sm text-white font-display cursor-pointer hover:bg-red-700" onClick={() => { navigate("/files") }}>
-                            <p>Leave Unit</p>
+                        <div className="mt-50 w-3/4 bg-red-500 mx-auto text-center p-1 rounded-sm text-white font-display cursor-pointer hover:bg-red-700" onClick={() => { leaveUnit(unitId ?? "") }}>
+                            {leaving ? (<p>Leaving ....</p>) : (<p>Leave Unit</p>)}
                         </div>
                     </div>
                 </div>
@@ -393,6 +420,7 @@ function Unit() {
             {newResourceModal && <NewResourceModal onClose={() => setNewResourceModal(false)} nodeId={nodeId} />}
             {viewResource && <ViewResourceModal onClose={() => { setViewResource(false) }} resource={resource} />}
             {editResourceModal && <EditResourceModal onClose={() => { setEditResourceModal(false) }} nodeId={nodeId} resource={editableResource} />}
+            {inviteUserModal && <InviteUserModal close={()=>{setInviteUserModal(false)}} />}
         </DndProvider>
     );
 }
